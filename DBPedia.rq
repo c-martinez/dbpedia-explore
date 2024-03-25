@@ -1,0 +1,43 @@
+#+ summary: Explore DBpedia entries
+#+ description: This query allows to define the subject, predicate and the object
+#+     to be inspected. All of these are optional, so they may or may not be present.
+#+     This allows queries to have the flexibility to search explore triples in a 
+#+     flexible way. It always fetches labels (in English) for subject, predicate
+#+     and object. It also filters by the subject's label.<br>
+#+     For example you can search for things that are of rdf:type dbo:Band<br>
+#+     or for things which have a dbo:hometown dbr:Liverpool
+#+ endpoint: https://dbpedia.org/sparql
+#+ endpoint_in_url: False
+#+ enumerate:
+#+   - p:
+#+     - http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+#+     - http://dbpedia.org/ontology/hometown
+#+   - o:
+#+     - http://www.w3.org/2002/07/owl#Class
+#+     - http://dbpedia.org/ontology/Band
+#+     - http://dbpedia.org/resource/Liverpool
+#+ defaults:
+#+   - text: "^The Beat.*"
+
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX dbp: <http://dbpedia.org/property/>
+PREFIX dbr: <http://dbpedia.org/resource/>
+PREFIX schema: <http://schema.org/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl:	<http://www.w3.org/2002/07/owl#>
+
+SELECT DISTINCT * WHERE {
+  ?__s_iri ?__p_iri ?__o_iri;
+    rdfs:label ?label.
+  OPTIONAL {
+    ?__p_iri rdfs:label ?p_label.
+    FILTER((LANG(?p_label)) = "en")
+  }
+  OPTIONAL {
+    ?__o_iri rdfs:label ?o_label.
+    FILTER((LANG(?o_label)) = "en")
+  }
+  FILTER((LANG(?label)) = "en")
+  FILTER(REGEX(?label, ?_text))
+}
+LIMIT 500
